@@ -82,19 +82,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
     }
   };
 
-  const handleDemoLogin = async () => {
-    setError("");
-    try {
-      setLoading(true);
-      await login("demo@billbot.app", "password123");
-      onSuccess();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Demo login failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 sm:p-6 lg:p-12 relative overflow-hidden selection:bg-indigo-500 selection:text-white">
       {/* 🌌 Space Background & Glowing Nebula Orbs (Active from frame 0) */}
@@ -227,29 +214,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
             {/* Top Shimmer Accent */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/logo.png"
-                  alt="BillBot Logo"
-                  className="w-12 h-12 rounded-2xl object-contain shadow-lg shadow-amber-500/20"
-                />
-                <div>
-                  <h2 className="text-xl font-black text-white tracking-tight">Sign In</h2>
-                  <p className="text-xs text-slate-400 font-medium">Access your BillBot assistant</p>
-                </div>
+            <div className="flex items-center gap-3 mb-6">
+              <img
+                src="/logo.png"
+                alt="BillBot Logo"
+                className="w-12 h-12 rounded-2xl object-contain shadow-lg shadow-amber-500/20"
+              />
+              <div>
+                <h2 className="text-xl font-black text-white tracking-tight">Sign In</h2>
+                <p className="text-xs text-slate-400 font-medium">Access your BillBot assistant</p>
               </div>
-
-              {/* Demo Account Quick Pill */}
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                className="text-[11px] font-black px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-indigo-300 border border-white/20 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs"
-                title="Instant login with demo account"
-              >
-                <Zap size={12} className="text-amber-400 fill-amber-400" />
-                <span>Demo User</span>
-              </button>
             </div>
 
             {error && (
