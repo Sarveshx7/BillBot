@@ -16,8 +16,8 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Set non-root user for security
-RUN addgroup -S billbot && adduser -S billbot -G billbot
+# Set non-root user and prepare storage
+RUN addgroup -S billbot && adduser -S billbot -G billbot && mkdir -p /app/data && chown -R billbot:billbot /app
 USER billbot
 
 # Copy compiled jar from builder
