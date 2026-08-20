@@ -46,8 +46,8 @@ export const SettingsPage: React.FC = () => {
   const [timezone, setTimezone] = useState(user?.timezone || "Asia/Kolkata");
   const [monthlyBudget, setMonthlyBudget] = useState("50000");
   const [bio, setBio] = useState(user?.businessAddress || "Tracking daily expenses & staying on time for bills.");
-  const [primaryUpiId, setPrimaryUpiId] = useState(() => localStorage.getItem("billbot_primary_upi_id") || "user@okhdfcbank");
-  const [primaryBank, setPrimaryBank] = useState(() => localStorage.getItem("billbot_primary_bank") || "HDFC Bank");
+  const [primaryUpiId, setPrimaryUpiId] = useState(() => localStorage.getItem("billbot_primary_upi_id") || "");
+  const [primaryBank, setPrimaryBank] = useState(() => localStorage.getItem("billbot_primary_bank") || "");
 
   // Notifications State
   const [pushStatus, setPushStatus] = useState<NotificationPermission>("default");
@@ -583,11 +583,14 @@ export const SettingsPage: React.FC = () => {
                 onChange={(e) => setPrimaryBank(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               >
-                <option value="HDFC Bank">HDFC Bank (A/c •••• 4829)</option>
-                <option value="ICICI Bank">ICICI Bank (A/c •••• 9102)</option>
-                <option value="State Bank of India">State Bank of India (A/c •••• 3310)</option>
-                <option value="Axis Bank">Axis Bank (A/c •••• 6504)</option>
-                <option value="Kotak Mahindra Bank">Kotak Mahindra Bank (A/c •••• 7821)</option>
+                <option value="">-- Select Bank (Optional) --</option>
+                <option value="HDFC Bank">HDFC Bank</option>
+                <option value="ICICI Bank">ICICI Bank</option>
+                <option value="State Bank of India">State Bank of India</option>
+                <option value="Axis Bank">Axis Bank</option>
+                <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                <option value="Punjab National Bank">Punjab National Bank</option>
+                <option value="Bank of Baroda">Bank of Baroda</option>
               </select>
               <p className="text-[11px] text-slate-400 mt-1">Authorized for NPCI e-Mandate auto-debit.</p>
             </div>

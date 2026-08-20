@@ -57,7 +57,7 @@ export const AutoPayModal: React.FC<AutoPayModalProps> = ({
 }) => {
   const [method, setMethod] = useState<"UPI" | "NETBANKING">("UPI");
   const [selectedApp, setSelectedApp] = useState("gpay");
-  const [upiId, setUpiId] = useState(() => localStorage.getItem("billbot_primary_upi_id") || "user@okhdfcbank");
+  const [upiId, setUpiId] = useState(() => localStorage.getItem("billbot_primary_upi_id") || "");
   const [selectedBank, setSelectedBank] = useState("hdfc");
   const [maxLimit, setMaxLimit] = useState(
     target ? Math.ceil(target.amount * 1.5).toString() : "5000"
@@ -70,8 +70,8 @@ export const AutoPayModal: React.FC<AutoPayModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      const savedUpi = localStorage.getItem("billbot_primary_upi_id");
-      if (savedUpi) setUpiId(savedUpi);
+      const savedUpi = localStorage.getItem("billbot_primary_upi_id") || "";
+      setUpiId(savedUpi);
       setStep("CONFIG");
       setUpiPin("");
       setValidationError("");
