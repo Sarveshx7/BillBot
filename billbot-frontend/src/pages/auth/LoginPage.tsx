@@ -86,7 +86,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
     setError("");
     try {
       setLoading(true);
-      await login("vipul@billbot.com", "password123");
+      await login("demo@billbot.app", "password123");
       onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message || "Demo login failed.");
@@ -268,7 +268,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
                   <input
                     type="email"
                     required
-                    placeholder="vipul@billbot.com"
+                    placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white/[0.05] border border-white/15 backdrop-blur-md text-white placeholder-slate-500 text-sm font-semibold focus:bg-white/[0.09] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all shadow-2xs"

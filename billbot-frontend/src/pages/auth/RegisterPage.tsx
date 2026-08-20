@@ -160,7 +160,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateLogin, onS
                 <input
                   type="text"
                   required
-                  placeholder="Vipul Sharma"
+                  placeholder="Full Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/[0.05] border border-white/15 backdrop-blur-md text-white placeholder-slate-500 text-sm font-semibold focus:bg-white/[0.09] focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-2xs"
@@ -176,7 +176,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateLogin, onS
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">@</span>
                 <input
                   type="text"
-                  placeholder="vipul_dev"
+                  placeholder="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
                   className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/[0.05] border border-white/15 backdrop-blur-md text-white placeholder-slate-500 text-sm font-semibold focus:bg-white/[0.09] focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-2xs"
@@ -193,7 +193,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateLogin, onS
                 <input
                   type="email"
                   required
-                  placeholder="vipul@example.com"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/[0.05] border border-white/15 backdrop-blur-md text-white placeholder-slate-500 text-sm font-semibold focus:bg-white/[0.09] focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-2xs"

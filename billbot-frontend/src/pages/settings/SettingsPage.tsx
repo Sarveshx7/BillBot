@@ -46,7 +46,7 @@ export const SettingsPage: React.FC = () => {
   const [timezone, setTimezone] = useState(user?.timezone || "Asia/Kolkata");
   const [monthlyBudget, setMonthlyBudget] = useState("50000");
   const [bio, setBio] = useState(user?.businessAddress || "Tracking daily expenses & staying on time for bills.");
-  const [primaryUpiId, setPrimaryUpiId] = useState(() => localStorage.getItem("billbot_primary_upi_id") || "vipul@okhdfcbank");
+  const [primaryUpiId, setPrimaryUpiId] = useState(() => localStorage.getItem("billbot_primary_upi_id") || "user@okhdfcbank");
   const [primaryBank, setPrimaryBank] = useState(() => localStorage.getItem("billbot_primary_bank") || "HDFC Bank");
 
   // Notifications State
@@ -467,7 +467,7 @@ export const SettingsPage: React.FC = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Vipul Sharma"
+                  placeholder="Full Name"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold text-slate-900"
                 />
               </div>
@@ -481,7 +481,7 @@ export const SettingsPage: React.FC = () => {
                 <AtSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="vipul_dev"
+                  placeholder="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold text-slate-900"
