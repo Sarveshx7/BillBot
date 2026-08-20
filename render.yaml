@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: billbot-backend
+    env: docker
+    dockerfilePath: ./billbot-backend/Dockerfile
+    dockerContext: ./billbot-backend
+    plan: free
+    region: oregon
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: FLYWAY_ENABLED
+        value: false
