@@ -136,26 +136,26 @@ def extract_date(lines):
 # AMOUNT EXTRACTION
 # =========================================================
 def extract_amount(lines):
-    # Regex for decimal currency values: 1,450.00 or 1450.00 or 450.50
+    # Regex matches: 1,450.00 | 450.50 | 1250 | 450/- | Rs. 450 | ₹ 1,200
     amount_pattern = re.compile(
-        r"(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+\.\d{2})",
+        r"(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)\s*(?:\/-)?",
         re.IGNORECASE
     )
 
-    # High priority keywords for final payable amount
     priority_keywords = [
-        "net payable",
-        "amount payable",
-        "total payable",
-        "net amount",
         "grand total",
-        "bill amount",
+        "net payable",
+        "total payable",
+        "amount payable",
         "total amount",
-        "total ₹",
-        "total rs",
-        "final amount",
+        "bill amount",
+        "net amount",
         "invoice total",
         "total bill",
+        "amount paid",
+        "total ₹",
+        "total rs",
+        "balance due",
         "total"
     ]
 
@@ -165,45 +165,39 @@ def extract_amount(lines):
         if not any(k in lower for k in priority_keywords):
             continue
 
-        # Check this line
-        matches = amount_pattern.findall(line)
-        if matches:
-            try:
-                val = float(matches[-1].replace(",", ""))
-                if val > 0:
-                    return val
-            except ValueError:
-                pass
-
-        # Check next 2 lines (often totals print on the line right below the label)
-        for next_line in lines[index + 1 : index + 3]:
-            matches = amount_pattern.findall(next_line)
-            if matches:
+        # Check this line and next 2 lines
+        for cand_line in [line] + lines[index + 1 : index + 3]:
+            matches = amount_pattern.findall(cand_line)
+            for m in matches:
+                if not m:
+                    continue
                 try:
-                    val = float(matches[-1].replace(",", ""))
-                    if val > 0:
+                    num_str = m.replace(",", "")
+                    val = float(num_str)
+                    if 0 < val < 500000 and val not in [2024, 2025, 2026]:
                         return val
                 except ValueError:
                     pass
 
-    # Step 2: Collect all decimal amounts found on receipt
+    # Step 2: Collect all reasonable amounts found on receipt
     all_amounts = []
     for line in lines:
+        if re.search(r"phone|mob|tel|pin|gst|date|time|gstin|inv|order", line, re.IGNORECASE):
+            continue
         matches = amount_pattern.findall(line)
-        for match in matches:
+        for m in matches:
+            if not m:
+                continue
             try:
-                v = float(match.replace(",", ""))
-                if v > 0:
+                num_str = m.replace(",", "")
+                v = float(num_str)
+                if 0 < v < 200000 and v not in [2024, 2025, 2026]:
                     all_amounts.append(v)
             except ValueError:
                 pass
 
     if all_amounts:
-        # Usually grand total is the highest or last monetary figure on a receipt
-        # Filter out obvious year or phone numbers (e.g. > 500000)
-        valid = [a for a in all_amounts if a < 500000]
-        if valid:
-            return max(valid)
+        return max(all_amounts)
 
     return 0.0
 

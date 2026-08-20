@@ -16,6 +16,7 @@ import { expenseService } from "../../services/expenseService";
 import { billDueService } from "../../services/billDueService";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import { useAuth } from "../../context/AuthContext";
+import { runInBrowserOCR } from "../../utils/receiptParser";
 
 interface ScanBillPageProps {
   onNavigate: (page: string) => void;
@@ -148,37 +149,65 @@ export const ScanBillPage: React.FC<ScanBillPageProps> = ({ onNavigate }) => {
     try {
       setOcrLoading(true);
       setOcrError("");
-      const formData = new FormData();
-      formData.append("file", billFile);
 
-      const ocrApiUrl = import.meta.env.VITE_OCR_API_URL || "http://127.0.0.1:5000";
-      const cleanUrl = ocrApiUrl.replace(/\/$/, "");
+      let extractedData: {
+        merchant: string;
+        amount: number;
+        category: string;
+        expenseDate: string;
+        paymentMethod: string;
+        rawLines: string[];
+      } | null = null;
 
-      const response = await fetch(`${cleanUrl}/ocr`, {
-        method: "POST",
-        body: formData,
-      });
+      // 1. If remote OCR microservice is explicitly configured and not localhost, try it
+      const ocrApiUrl = import.meta.env.VITE_OCR_API_URL;
+      if (ocrApiUrl && !ocrApiUrl.includes("127.0.0.1") && !ocrApiUrl.includes("localhost")) {
+        try {
+          const cleanUrl = ocrApiUrl.replace(/\/$/, "");
+          const formData = new FormData();
+          formData.append("file", billFile);
 
-      const res = await response.json();
-      if (!response.ok || !res?.success) {
-        throw new Error(res?.detail || res?.message || "OCR service could not parse the receipt.");
+          const response = await fetch(`${cleanUrl}/ocr`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            const res = await response.json();
+            if (res?.success && res?.data) {
+              const d = res.data;
+              extractedData = {
+                merchant: d.merchant || "Store / Merchant",
+                amount: d.amount ? parseFloat(d.amount) : 0,
+                category: d.category || "GROCERIES",
+                expenseDate: d.expenseDate || new Date().toISOString().slice(0, 10),
+                paymentMethod: d.paymentMethod || "UPI",
+                rawLines: res.lines || [],
+              };
+            }
+          }
+        } catch {
+          // Fall back to client-side WebAssembly OCR
+        }
       }
 
-      const d = res.data || res.expense;
-      setMerchant(d.merchant || "Store / Merchant");
-      setAmount(d.amount ? d.amount.toString() : "0.00");
-      setCategory(d.category || "GROCERIES");
-      setExpenseDate(d.expenseDate || new Date().toISOString().slice(0, 10));
-      setPaymentMethod(d.paymentMethod || "UPI");
+      // 2. High-Precision In-Browser WebAssembly OCR (Runs directly on mobile phones & browsers)
+      if (!extractedData) {
+        extractedData = await runInBrowserOCR(billFile);
+      }
+
+      setMerchant(extractedData.merchant || "Store / Merchant");
+      setAmount(extractedData.amount > 0 ? extractedData.amount.toString() : "");
+      setCategory(extractedData.category || "GROCERIES");
+      setExpenseDate(extractedData.expenseDate || new Date().toISOString().slice(0, 10));
+      setPaymentMethod(extractedData.paymentMethod || "UPI");
       setNotes("Extracted via AI OCR");
-      setRawOcrLines(res.lines || []);
+      setRawOcrLines(extractedData.rawLines || []);
       setHasExtracted(true);
     } catch (err: any) {
       console.error("OCR extraction failed:", err);
-      setOcrError(
-        err?.message ||
-          "Could not reach OCR service on http://127.0.0.1:5000. Please ensure the OCR engine is running."
-      );
+      setOcrError("Could not fully auto-detect text. Please verify or fill in details below.");
+      setHasExtracted(true); // Always open form so the user can save without blocking!
     } finally {
       setOcrLoading(false);
     }
