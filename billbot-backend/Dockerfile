@@ -6,13 +6,11 @@ WORKDIR /app
 COPY pom.xml ./
 COPY .mvn .mvn
 COPY mvnw ./
-
-# Download dependencies
-RUN ./mvnw dependency:go-offline -B || true
+RUN chmod +x mvnw || true
 
 # Copy source code and package
 COPY src ./src
-RUN ./mvnw clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B
 
 # Stage 2: Runtime Environment
 FROM eclipse-temurin:21-jre-alpine
