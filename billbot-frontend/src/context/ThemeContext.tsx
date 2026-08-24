@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type ThemeId = "gold" | "cyber" | "emerald" | "chocolate" | "classic";
+export type ThemeId = "gold" | "cyber" | "emerald" | "chocolate" | "classic" | "dark";
 
 export interface ThemeConfig {
   id: ThemeId;
@@ -287,6 +287,56 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
       secondary: "#0F172A",
       accent: "#3B82F6",
       surface: "#F8FAFC",
+    },
+  },
+
+  dark: {
+    id: "dark",
+    name: "Midnight Dark Mode",
+    tagline: "Deep OLED pitch black, sleek dark slate cards & glowing neon violet accents",
+    tag: "🌙 True Dark Mode",
+    bgPage: "#090D16",
+    textMain: "#F8FAFC",
+    textMuted: "#94A3B8",
+    cardBg: "bg-slate-900/90",
+    cardBorder: "border-slate-800 hover:border-indigo-500/60 shadow-xl ring-1 ring-white/5",
+    heroBg: "bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/70",
+    heroGlow1: "bg-indigo-600/30",
+    heroGlow2: "bg-purple-600/25",
+    heroBorder: "border-slate-800",
+    heroTextGradient: "from-indigo-300 via-purple-200 to-pink-300",
+    primaryBtn: "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-600/35",
+    secondaryBtn: "bg-slate-800/80 hover:bg-slate-750 text-slate-200 border-slate-700",
+    accentBadgeBg: "bg-indigo-500/20",
+    accentBadgeText: "text-indigo-300",
+    accentBadgeBorder: "border-indigo-500/30",
+    sidebarBg: "bg-slate-950",
+    sidebarBorder: "border-slate-800/80",
+    sidebarActiveItem: "bg-gradient-to-r from-indigo-600 to-purple-600",
+    sidebarActiveText: "text-white font-black",
+    topbarBg: "bg-slate-950/85 backdrop-blur-xl",
+    topbarBorder: "border-slate-800/80",
+    chartBarFill1: "#6366f1",
+    chartBarFill2: "#8b5cf6",
+    categoryColors: {
+      FOOD: "#f97316",
+      GROCERIES: "#10b981",
+      TRANSPORT: "#06b6d4",
+      SHOPPING: "#ec4899",
+      BILLS: "#6366f1",
+      ELECTRICITY: "#3b82f6",
+      ENTERTAINMENT: "#a855f7",
+      HEALTH: "#14b8a6",
+      RENT: "#0ea5e9",
+      TRAVEL: "#2dd4bf",
+      EDUCATION: "#94a3b8",
+      OTHER: "#cbd5e1",
+    },
+    colors: {
+      primary: "#6366F1",
+      secondary: "#090D16",
+      accent: "#A855F7",
+      surface: "#0F172A",
     },
   },
 };

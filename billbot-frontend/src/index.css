@@ -13,6 +13,101 @@
   }
 }
 
+/* 🌙 MIDNIGHT DARK MODE ENGINE */
+[data-theme="dark"] {
+  background-color: #090D16;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] body {
+  background-color: #090D16 !important;
+  color: #F8FAFC !important;
+}
+
+/* Transform all white boxes & cards into deep obsidian dark cards */
+[data-theme="dark"] .bg-white {
+  background-color: #0F172A !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .bg-white\/80,
+[data-theme="dark"] .bg-white\/85,
+[data-theme="dark"] .bg-white\/90,
+[data-theme="dark"] .bg-white\/95 {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+  color: #F8FAFC !important;
+}
+
+/* Sub-containers, table headers & input backgrounds */
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-slate-100 {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+  border-color: rgba(51, 65, 85, 0.6) !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .bg-slate-200 {
+  background-color: #334155 !important;
+}
+
+/* Radiant Typography */
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800,
+[data-theme="dark"] .text-slate-700 {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .text-slate-400 {
+  color: #64748B !important;
+}
+
+/* Sleek Dark Borders */
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-200\/80,
+[data-theme="dark"] .border-slate-300 {
+  border-color: rgba(51, 65, 85, 0.7) !important;
+}
+
+[data-theme="dark"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+[data-theme="dark"] .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* Dark Inputs, Selects & Textareas */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: #6366F1 !important;
+  background-color: #0F172A !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35) !important;
+}
+
+[data-theme="dark"] select option {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
 @keyframes float {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
