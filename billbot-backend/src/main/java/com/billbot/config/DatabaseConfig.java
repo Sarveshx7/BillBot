@@ -10,6 +10,8 @@ import javax.sql.DataSource;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Configuration
 public class DatabaseConfig {
@@ -42,29 +44,53 @@ public class DatabaseConfig {
             activeUrl = activeUrl.trim();
             if (activeUrl.startsWith("postgres://") || activeUrl.startsWith("postgresql://")) {
                 try {
-                    URI dbUri = URI.create(activeUrl);
-                    String host = dbUri.getHost();
-                    String path = dbUri.getRawPath();
-                    String rawUserInfo = dbUri.getRawUserInfo();
-                    if (host == null) {
-                        throw new IllegalArgumentException("PostgreSQL URL must include a valid host name");
-                    }
-                    if (rawUserInfo == null) {
-                        throw new IllegalArgumentException("PostgreSQL URL must include username and password credentials");
+                    String username;
+                    String password;
+                    String host;
+                    int port;
+                    String path;
+                    String queryParams;
+
+                    // Some providers return credentials with unescaped URI-reserved
+                    // characters (for example @ or #). Parse that common form before
+                    // using URI, which treats those characters as authority/fragment delimiters.
+                    Pattern connectionPattern = Pattern.compile(
+                            "^(?:postgres|postgresql)://([^:/?#]+):(.+)@([^:/?#]+)(?::(\\d+))?(/[^?]*)?(?:\\?(.*))?$"
+                    );
+                    Matcher matcher = connectionPattern.matcher(activeUrl);
+                    if (matcher.matches()) {
+                        username = decodeUriComponent(matcher.group(1));
+                        password = decodeUriComponent(matcher.group(2));
+                        host = matcher.group(3);
+                        port = matcher.group(4) == null ? 5432 : Integer.parseInt(matcher.group(4));
+                        path = matcher.group(5);
+                        queryParams = matcher.group(6);
+                    } else {
+                        URI dbUri = URI.create(activeUrl);
+                        host = dbUri.getHost();
+                        String rawUserInfo = dbUri.getRawUserInfo();
+                        if (host == null) {
+                            throw new IllegalArgumentException("PostgreSQL URL must include a valid host name");
+                        }
+                        if (rawUserInfo == null) {
+                            throw new IllegalArgumentException("PostgreSQL URL must include username and password credentials");
+                        }
+
+                        int separator = rawUserInfo.indexOf(':');
+                        if (separator < 1 || separator == rawUserInfo.length() - 1) {
+                            throw new IllegalArgumentException("PostgreSQL URL must include a username and password");
+                        }
+
+                        username = decodeUriComponent(rawUserInfo.substring(0, separator));
+                        password = decodeUriComponent(rawUserInfo.substring(separator + 1));
+                        port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
+                        path = dbUri.getRawPath();
+                        queryParams = dbUri.getRawQuery();
                     }
 
-                    int separator = rawUserInfo.indexOf(':');
-                    if (separator < 1 || separator == rawUserInfo.length() - 1) {
-                        throw new IllegalArgumentException("PostgreSQL URL must include a username and password");
-                    }
-
-                    String username = decodeUriComponent(rawUserInfo.substring(0, separator));
-                    String password = decodeUriComponent(rawUserInfo.substring(separator + 1));
-                    int port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
                     if (path == null || path.isBlank() || path.equals("/")) {
                         path = "/postgres";
                     }
-                    String queryParams = dbUri.getRawQuery();
                     String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path;
                     if (queryParams != null && !queryParams.isBlank()) {
                         jdbcUrl += "?" + queryParams;
