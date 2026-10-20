@@ -46,8 +46,11 @@ public class DatabaseConfig {
                     String host = dbUri.getHost();
                     String path = dbUri.getRawPath();
                     String rawUserInfo = dbUri.getRawUserInfo();
-                    if (host == null || rawUserInfo == null || path == null || path.length() < 2) {
-                        throw new IllegalArgumentException("PostgreSQL URL must include a host, credentials, and database name");
+                    if (host == null) {
+                        throw new IllegalArgumentException("PostgreSQL URL must include a valid host name");
+                    }
+                    if (rawUserInfo == null) {
+                        throw new IllegalArgumentException("PostgreSQL URL must include username and password credentials");
                     }
 
                     int separator = rawUserInfo.indexOf(':');
@@ -58,6 +61,9 @@ public class DatabaseConfig {
                     String username = decodeUriComponent(rawUserInfo.substring(0, separator));
                     String password = decodeUriComponent(rawUserInfo.substring(separator + 1));
                     int port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
+                    if (path == null || path.isBlank() || path.equals("/")) {
+                        path = "/postgres";
+                    }
                     String queryParams = dbUri.getRawQuery();
                     String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path;
                     if (queryParams != null && !queryParams.isBlank()) {
