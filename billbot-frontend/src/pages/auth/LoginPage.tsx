@@ -13,7 +13,6 @@ import {
   ScanLine,
   Repeat,
 } from "lucide-react";
-import { Meteors } from "../../components/common/Meteors";
 
 interface LoginPageProps {
   onNavigateRegister: () => void;
@@ -29,20 +28,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
   const [loading, setLoading] = useState(false);
 
   const [introStage, setIntroStage] = useState<number>(0);
-  const [showMeteors, setShowMeteors] = useState(false);
 
   useEffect(() => {
     const t1 = setTimeout(() => setIntroStage(1), 200);
     const t2 = setTimeout(() => setIntroStage(2), 450);
-    const t3 = setTimeout(() => {
-      setIntroStage(3);
-      setShowMeteors(true);
-    }, 900);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, []);
 
@@ -82,9 +75,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
           backgroundSize: "24px 24px",
         }}
       />
-
-      {/* 🌠 Twinkling Stars + Progressive Crescendo Meteor Shower (Starts when form appears) */}
-      <Meteors number={36} color="white" active={showMeteors} />
 
       {/* 🚀 STEP 1: ONLY BIG CLEAN LOGO POP-UP (Overlay centered over background at t = 0 to 1.5s) */}
       {introStage === 0 && (
