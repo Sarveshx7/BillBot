@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { Meteors } from "../../components/common/Meteors";
 import {
   Lock,
   Mail,
@@ -75,6 +76,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
           backgroundSize: "24px 24px",
         }}
       />
+
+      {/* Twinkling stars only; meteors are disabled on the login page. */}
+      <Meteors number={36} color="white" active={false} />
 
       {/* 🚀 STEP 1: ONLY BIG CLEAN LOGO POP-UP (Overlay centered over background at t = 0 to 1.5s) */}
       {introStage === 0 && (
