@@ -2,6 +2,7 @@ package com.billbot.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -148,6 +149,24 @@ public class DatabaseConfig {
                 .password("")
                 .driverClassName("org.h2.Driver")
                 .build();
+    }
+
+    @Bean
+    public HibernatePropertiesCustomizer databaseDialectCustomizer() {
+        String configuredUrl = databaseUrl;
+        if (configuredUrl == null || configuredUrl.isBlank()) {
+            configuredUrl = dbUrl;
+        }
+        String url = configuredUrl == null ? "" : configuredUrl.trim().toLowerCase(Locale.ROOT);
+        boolean postgres = url.startsWith("postgres://")
+                || url.startsWith("postgresql://")
+                || url.startsWith("jdbc:postgresql:");
+
+        return properties -> {
+            if (postgres) {
+                properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+            }
+        };
     }
 
     private String decodeUriComponent(String value) {

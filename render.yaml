@@ -16,8 +16,6 @@ services:
         sync: false
       - key: JPA_DDL_AUTO
         value: update
-      - key: SPRING_JPA_DATABASE_PLATFORM
-        value: org.hibernate.dialect.PostgreSQLDialect
       - key: FLYWAY_ENABLED
         value: false
       - key: DB_REQUIRED
