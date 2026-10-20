@@ -17,11 +17,21 @@ export interface User {
 
 export interface LoginResponse {
   token: string;
-  type: string;
+  tokenType: string;
   userId: string;
   name: string;
   username?: string;
   email: string;
+  currency: string;
+  timezone: string;
+  businessName?: string;
+  businessPhone?: string;
+  businessAddress?: string;
+  taxNumber?: string;
+  invoicePrefix?: string;
+  invoiceNotesDefault?: string;
+  termsDefault?: string;
+  createdAt: string;
 }
 
 export interface UserProfileRequest {

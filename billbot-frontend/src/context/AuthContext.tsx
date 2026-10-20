@@ -51,20 +51,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setIsLoading(false);
     }
-  }, [token]);
+  // Restore the session once on page load. Login and registration responses
+  // already include the profile, so changing the token must not trigger another request.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const saveLoginResponse = (res: Awaited<ReturnType<typeof authService.login>>) => {
+    const profile: User = {
+      id: res.userId,
+      name: res.name,
+      username: res.username,
+      email: res.email,
+      currency: res.currency || "INR",
+      timezone: res.timezone || "Asia/Kolkata",
+      businessName: res.businessName,
+      businessPhone: res.businessPhone,
+      businessAddress: res.businessAddress,
+      taxNumber: res.taxNumber,
+      invoicePrefix: res.invoicePrefix,
+      invoiceNotesDefault: res.invoiceNotesDefault,
+      termsDefault: res.termsDefault,
+      createdAt: res.createdAt,
+    };
+
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("user", JSON.stringify(profile));
+    setUser(profile);
+    setToken(res.token);
+  };
 
   const login = async (email: string, password: string) => {
     const res = await authService.login(email, password);
-    localStorage.setItem("token", res.token);
-    setToken(res.token);
-    const profile = await authService.getProfile();
-    setUser(profile);
-    localStorage.setItem("user", JSON.stringify(profile));
+    saveLoginResponse(res);
   };
 
   const register = async (name: string, username: string, email: string, password: string) => {
-    await authService.register(name, username, email, password);
-    await login(email, password);
+    const res = await authService.register(name, username, email, password);
+    saveLoginResponse(res);
   };
 
   const logout = () => {

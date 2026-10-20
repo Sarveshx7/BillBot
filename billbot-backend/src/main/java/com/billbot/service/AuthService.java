@@ -30,16 +30,17 @@ public class AuthService {
     // REGISTER
     // =========================
 
-    public User register(RegisterRequest request) {
+    public LoginResponse register(RegisterRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already registered");
         }
 
         User user = new User();
 
         user.setName(request.getName().trim());
-        user.setEmail(request.getEmail().trim().toLowerCase());
+        user.setEmail(email);
 
         if (request.getUsername() != null && !request.getUsername().isBlank()) {
             String uname = request.getUsername().trim().toLowerCase();
@@ -48,7 +49,7 @@ public class AuthService {
             }
             user.setUsername(uname);
         } else {
-            String base = request.getEmail().split("@")[0].replaceAll("[^a-zA-Z0-9_]", "").toLowerCase();
+            String base = email.split("@")[0].replaceAll("[^a-zA-Z0-9_]", "").toLowerCase();
             user.setUsername(base);
         }
 
@@ -57,7 +58,8 @@ public class AuthService {
                 passwordEncoder.encode(request.getPassword())
         );
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return createLoginResponse(savedUser);
     }
 
 
@@ -68,7 +70,7 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository
-                .findByEmail(request.getEmail())
+                .findByEmail(request.getEmail().trim().toLowerCase())
                 .orElseThrow(() ->
                         new RuntimeException("Invalid email or password")
                 );
@@ -82,18 +84,11 @@ public class AuthService {
         }
 
         // Generate JWT after successful authentication
-        String token = jwtService.generateToken(
-                user.getId().toString(),
-                user.getEmail()
-        );
+        return createLoginResponse(user);
+    }
 
-        return new LoginResponse(
-                token,
-                "Bearer",
-                user.getId().toString(),
-                user.getName(),
-                user.getUsername(),
-                user.getEmail()
-        );
+    private LoginResponse createLoginResponse(User user) {
+        String token = jwtService.generateToken(user.getId().toString(), user.getEmail());
+        return new LoginResponse(token, "Bearer", user);
     }
 }

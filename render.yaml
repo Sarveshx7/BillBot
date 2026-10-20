@@ -12,7 +12,11 @@ services:
         value: 8080
       - key: JWT_SECRET
         generateValue: true
+      - key: DATABASE_URL
+        sync: false
       - key: JPA_DDL_AUTO
         value: update
       - key: FLYWAY_ENABLED
         value: false
+      - key: DB_REQUIRED
+        value: true

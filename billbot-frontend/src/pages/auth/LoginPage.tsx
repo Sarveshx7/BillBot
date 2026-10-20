@@ -28,31 +28,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister, onSucc
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🎬 Cinematic Entrance Animation Timeline States
-  // Background & Stars: Active immediately from t = 0
-  // Stage 0: Big Clean Logo Pop in center (0s - 1.5s)
-  // Stage 1: Left Side Slides In completely (1.5s - 2.6s)
-  // Stage 2: Right Form Card Slides In (2.6s - 3.4s)
-  // Stage 3: Meteor Shower Starts: One-by-One -> All Together -> High Density (3.4s+)
   const [introStage, setIntroStage] = useState<number>(0);
   const [showMeteors, setShowMeteors] = useState(false);
 
   useEffect(() => {
-    // 1. Stage 0 -> 1: Logo intro completes at 1.5s, left side slides in
-    const t1 = setTimeout(() => {
-      setIntroStage(1);
-    }, 1500);
-
-    // 2. Stage 1 -> 2: Left side has completely appeared; right form slides in at 2.6s
-    const t2 = setTimeout(() => {
-      setIntroStage(2);
-    }, 2600);
-
-    // 3. Stage 2 -> 3: Form appears; meteor shower starts progressively at 3.4s
+    const t1 = setTimeout(() => setIntroStage(1), 200);
+    const t2 = setTimeout(() => setIntroStage(2), 450);
     const t3 = setTimeout(() => {
       setIntroStage(3);
       setShowMeteors(true);
-    }, 3400);
+    }, 900);
 
     return () => {
       clearTimeout(t1);

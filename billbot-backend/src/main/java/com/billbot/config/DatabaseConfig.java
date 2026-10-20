@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 import java.net.URI;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class DatabaseConfig {
@@ -26,6 +26,9 @@ public class DatabaseConfig {
     @Value("${DB_PASSWORD:}")
     private String dbPassword;
 
+    @Value("${DB_REQUIRED:false}")
+    private boolean databaseRequired;
+
     @Bean
     @Primary
     public DataSource dataSource() {
@@ -39,58 +42,29 @@ public class DatabaseConfig {
             activeUrl = activeUrl.trim();
             if (activeUrl.startsWith("postgres://") || activeUrl.startsWith("postgresql://")) {
                 try {
-                    String username = "";
-                    String password = "";
-                    String host = "";
-                    int port = 5432;
-                    String database = "/postgres";
-                    String queryParams = "";
-
-                    // Regex to handle passwords with special characters (@, #, $, etc.)
-                    Pattern pattern = Pattern.compile("^(?:postgres|postgresql)://([^:]+):(.+)@([^:/]+)(?::(\\d+))?(/[^?]+)?(?:\\?(.*))?$");
-                    Matcher matcher = pattern.matcher(activeUrl);
-
-                    if (matcher.find()) {
-                        username = matcher.group(1);
-                        password = matcher.group(2);
-                        host = matcher.group(3);
-                        if (matcher.group(4) != null) {
-                            port = Integer.parseInt(matcher.group(4));
-                        }
-                        if (matcher.group(5) != null) {
-                            database = matcher.group(5);
-                        }
-                        if (matcher.group(6) != null) {
-                            queryParams = matcher.group(6);
-                        }
-                    } else {
-                        // Standard URI fallback
-                        URI dbUri = new URI(activeUrl);
-                        if (dbUri.getUserInfo() != null) {
-                            String[] userInfo = dbUri.getUserInfo().split(":", 2);
-                            username = userInfo[0];
-                            if (userInfo.length > 1) {
-                                password = userInfo[1];
-                            }
-                        }
-                        port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
-                        host = dbUri.getHost();
-                        database = dbUri.getPath();
-                        if (dbUri.getQuery() != null) {
-                            queryParams = dbUri.getQuery();
-                        }
+                    URI dbUri = URI.create(activeUrl);
+                    String host = dbUri.getHost();
+                    String path = dbUri.getRawPath();
+                    String rawUserInfo = dbUri.getRawUserInfo();
+                    if (host == null || rawUserInfo == null || path == null || path.length() < 2) {
+                        throw new IllegalArgumentException("PostgreSQL URL must include a host, credentials, and database name");
                     }
 
-                    if (!database.startsWith("/")) {
-                        database = "/" + database;
+                    int separator = rawUserInfo.indexOf(':');
+                    if (separator < 1 || separator == rawUserInfo.length() - 1) {
+                        throw new IllegalArgumentException("PostgreSQL URL must include a username and password");
                     }
 
-                    String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + database;
-                    if (queryParams != null && !queryParams.isEmpty()) {
+                    String username = decodeUriComponent(rawUserInfo.substring(0, separator));
+                    String password = decodeUriComponent(rawUserInfo.substring(separator + 1));
+                    int port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
+                    String queryParams = dbUri.getRawQuery();
+                    String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path;
+                    if (queryParams != null && !queryParams.isBlank()) {
                         jdbcUrl += "?" + queryParams;
                     }
 
-                    System.out.println("[DatabaseConfig] Connecting to Supabase/PostgreSQL host: " + host + " (port " + port + ")");
+                    System.out.println("[DatabaseConfig] Connecting to PostgreSQL host: " + host + " (port " + port + ")");
 
                     return DataSourceBuilder.create()
                             .url(jdbcUrl)
@@ -99,10 +73,17 @@ public class DatabaseConfig {
                             .driverClassName("org.postgresql.Driver")
                             .build();
                 } catch (Exception e) {
-                    System.err.println("[DatabaseConfig] Error parsing DATABASE_URL: " + e.getMessage());
+                    throw new IllegalStateException("Could not configure the PostgreSQL database from DATABASE_URL/DB_URL", e);
                 }
             } else if (activeUrl.startsWith("jdbc:")) {
-                String driver = activeUrl.contains("postgresql") ? "org.postgresql.Driver" : "org.h2.Driver";
+                String driver;
+                if (activeUrl.startsWith("jdbc:postgresql:")) {
+                    driver = "org.postgresql.Driver";
+                } else if (activeUrl.startsWith("jdbc:h2:")) {
+                    driver = "org.h2.Driver";
+                } else {
+                    throw new IllegalArgumentException("Unsupported JDBC database URL. Use PostgreSQL or H2.");
+                }
                 System.out.println("[DatabaseConfig] Connecting to JDBC URL: " + activeUrl);
                 return DataSourceBuilder.create()
                         .url(activeUrl)
@@ -111,6 +92,12 @@ public class DatabaseConfig {
                         .driverClassName(driver)
                         .build();
             }
+
+            throw new IllegalArgumentException("Unsupported database URL. Use a PostgreSQL URI, PostgreSQL JDBC URL, or H2 JDBC URL.");
+        }
+
+        if (databaseRequired) {
+            throw new IllegalStateException("No database URL is configured. Set DATABASE_URL or DB_URL for this deployment.");
         }
 
         // 2. Persistent file-based H2 fallback (survives restarts on local)
@@ -122,5 +109,10 @@ public class DatabaseConfig {
                 .password("")
                 .driverClassName("org.h2.Driver")
                 .build();
+    }
+
+    private String decodeUriComponent(String value) {
+        // A plus sign is literal in URI user-info (unlike form-encoded data).
+        return URLDecoder.decode(value.replace("+", "%2B"), StandardCharsets.UTF_8);
     }
 }
