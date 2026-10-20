@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +91,12 @@ public class DatabaseConfig {
 
                     if (path == null || path.isBlank() || path.equals("/")) {
                         path = "/postgres";
+                    }
+                    if (host.toLowerCase(Locale.ROOT).endsWith(".pooler.supabase.com")
+                            && (queryParams == null || !queryParams.toLowerCase(Locale.ROOT).contains("sslmode="))) {
+                        queryParams = queryParams == null || queryParams.isBlank()
+                                ? "sslmode=require"
+                                : queryParams + "&sslmode=require";
                     }
                     String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path;
                     if (queryParams != null && !queryParams.isBlank()) {
